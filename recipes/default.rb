@@ -37,10 +37,12 @@ node['secretfiles'].each do |name, settings|
 
     item = Chef::EncryptedDataBagItem.load(settings['data_bag'], item_name, secret_key)
 
+    # copy notify settings to local array
+    notify_settings = Array.new
+    notify_settings = settings['notifies'].to_a if settings.has_key?('notifies')
+    
     # :delayed is default timer
-    if settings.has_key?('notifies') and settings['notifies'].length < 3
-      settings['notifies'][2] = :delayed
-    end
+    notify_settings[2] = :delayed if notify_settings.length < 3
 
     item['secretfiles'].each do |file_info|
       # Create enclosing dir if it doesn't exist
@@ -53,9 +55,9 @@ node['secretfiles'].each do |name, settings|
         owner file_info['owner'] if file_info.has_key?('owner')
         group file_info['group'] if file_info.has_key?('group')
         mode file_info['mode'] if file_info.has_key?('mode')
-        notifies settings['notifies'][0].to_sym,
-                 settings['notifies'][1],
-                 settings['notifies'][2].to_sym if settings.has_key?('notifies')
+        notifies notify_settings[0].to_sym,
+                 notify_settings[1],
+                 notify_settings[2].to_sym if not notify_settings.empty?
       end
     end
   end
