@@ -55,6 +55,7 @@ node['secretfiles'].each do |name, settings|
         owner file_info['owner'] if file_info.has_key?('owner')
         group file_info['group'] if file_info.has_key?('group')
         mode file_info['mode'] if file_info.has_key?('mode')
+        sensitive true
         notifies notify_settings[0].to_sym,
                  notify_settings[1],
                  notify_settings[2].to_sym if not notify_settings.empty?
